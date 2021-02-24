@@ -9,7 +9,15 @@ const app: express.Application = express();
 app.use(cors());
 const port = process.env.PORT || 3000;
 
-app.get('/', (req: Request, res: Response): void => {     
+app.get('/', async (req: Request, res: Response): Promise<void> => {     
+    setUp();
+    console.log('showing changes');
+    try {
+        const img = await query('SELECT * FROM IMAGES;');
+        console.log(img);
+    } catch (error: unknown) {
+        console.error(error);
+    }
     res.send(JSON.stringify('Send a request to the backend'));
 });
 
@@ -25,6 +33,5 @@ app.get('/id/:id', async(req: Request, res: Response): Promise<void> => {
 });
 
 app.listen(port, (): void => {
-    setUp();
     console.log(`App listening at http://localhost:${port}`);
 });
