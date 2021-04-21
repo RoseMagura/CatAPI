@@ -10,4 +10,5 @@ app.listen(Number(port), host, (): void => {
   console.log(String(process.env.PGDATABASE),
     String(process.env.PGUSER),
     String(process.env.PGPASSWORD));
+  testConnection();
 });
