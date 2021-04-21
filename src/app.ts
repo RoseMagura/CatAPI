@@ -27,15 +27,15 @@ declare global {
 }
 
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "/../src/build")));
-
+  app.use(express.static(path.resolve('build')));
 }
 
 
 app.get('/', (req: Request, res: Response): void => {
-  res.sendFile('build/index.html');
-});
+  res.sendFile(path.resolve('build/index.html'));
 
+});
+  
 app.post(
   "/login",
   async (req: Request, res: Response): Promise<void> => {
@@ -51,9 +51,9 @@ app.use("/likes", likesRouter);
 app.use("/comments", commentsRouter);
 app.use("/users", usersRouter);
 
-// // Handle 404 errors
-// app.use((req: Request, res: Response) => {
-//     res.status(404).send('Unable to find that page');
-// });
+// Handle 404 errors
+app.use((req: Request, res: Response) => {
+    res.status(404).send('Unable to find that page');
+});
 
 export default app;

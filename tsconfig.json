@@ -20,7 +20,8 @@
         "config",
         "migrations",
         "seeders",
-        "coverage"
+        "coverage",
+        "build"
     ],
     "typeRoots": [
       "./node_modules/@types"

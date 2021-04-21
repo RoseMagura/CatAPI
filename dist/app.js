@@ -24,10 +24,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 if (process.env.NODE_ENV === "production") {
-    app.use(express.static(path.join(__dirname, "/../src/build")));
+    app.use(express.static(path.resolve('build')));
 }
 app.get('/', (req, res) => {
-    res.sendFile('build/index.html');
+    // res.sendFile(__dirname + '/../build/index.html');
+    res.sendFile(path.resolve('build/index.html'));
 });
 app.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log("req.body", req.body);
