@@ -5,10 +5,16 @@ import { Sequelize, DataTypes } from "sequelize";
 dotenv.config();
 
 export const sequelize = new Sequelize(
-  String(process.env.PGDATABASE),
-  String(process.env.PGUSER),
-  String(process.env.PGPASSWORD),
-  { dialect: "postgres" }
+  String(process.env.HEROKU_DB),
+  {
+    dialect: "postgres", dialectOptions: {
+      ssl:
+      {
+        require: true,
+        rejectUnauthorized: false
+      }
+    }
+  }
 );
 
 export const testConnection = async () => {

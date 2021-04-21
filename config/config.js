@@ -17,4 +17,19 @@ module.exports = {
     port: process.env.PGPORT,
     dialect: "postgres",
   },
+  production: {
+    username: process.env.HEROKU_USER,
+    password: process.env.HEROKU_PASSWORD,
+    database: process.env.HEROKU_DATABASE,
+    host: process.env.HEROKU_HOST,
+    port: 5432,
+    dialect: 'postgres',
+    dialectOptions: {
+      ssl:
+      {
+        require: true,
+        rejectUnauthorized: false
+      }
+    }
+  }
 };
