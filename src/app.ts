@@ -1,37 +1,59 @@
-import * as express from 'express';
-import * as cors from 'cors';
-import { Request, Response } from 'express';
-import * as dotenv from 'dotenv';
-import { query, setUp } from './initDB';
+import * as express from "express";
+import * as cors from "cors";
+import * as dotenv from "dotenv";
+import { Request, Response } from "express";
+import imagesRouter from "./routes/images";
+import docsRouter from "./routes/docs";
+import likesRouter from "./routes/likes";
+import commentsRouter from "./routes/comments";
+import usersRouter from "./routes/users";
+import { issueToken } from "./auth/index";
+const path = require("path");
 
 dotenv.config();
 const app: express.Application = express();
 app.use(cors());
-const port = process.env.PORT || 3000;
+app.use(express.json());
 
-app.get('/', async (req: Request, res: Response): Promise<void> => {     
-    setUp();
-    console.log('showing changes');
-    try {
-        const img = await query('SELECT * FROM IMAGES;');
-        console.log(img);
-    } catch (error: unknown) {
-        console.error(error);
+// make certain fields accessible through the Express version of user
+declare global {
+  namespace Express {
+    interface User {
+      id: string;
+      admin?: boolean;
+      userId?: number;
     }
-    res.send(JSON.stringify('Send a request to the backend'));
+  }
+}
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "/../src/build")));
+
+}
+
+
+app.get('/', (req: Request, res: Response): void => {
+  res.sendFile('build/index.html');
 });
 
-app.get('/all', async(req: Request, res: Response): Promise<void> => {
-    const all = await query('SELECT * FROM IMAGES;');
-    res.send(all.rows);
-});
+app.post(
+  "/login",
+  async (req: Request, res: Response): Promise<void> => {
+    console.log("req.body", req.body);
+    const { username, password } = req.body;
+    await issueToken(username, password, res);
+  }
+);
 
-app.get('/id/:id', async(req: Request, res: Response): Promise<void> => {
-    const id = req.params.id;
-    const image = await query(`SELECT * FROM IMAGES WHERE id=${id}`);
-    res.send(image.rows);
-});
+app.use("/images", imagesRouter);
+app.use("/api-docs", docsRouter);
+app.use("/likes", likesRouter);
+app.use("/comments", commentsRouter);
+app.use("/users", usersRouter);
 
-app.listen(port, (): void => {
-    console.log(`App listening at http://localhost:${port}`);
-});
+// // Handle 404 errors
+// app.use((req: Request, res: Response) => {
+//     res.status(404).send('Unable to find that page');
+// });
+
+export default app;

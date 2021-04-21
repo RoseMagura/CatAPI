@@ -12,24 +12,35 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const initDB_1 = require("./initDB");
+const images_1 = require("./routes/images");
+const docs_1 = require("./routes/docs");
+const likes_1 = require("./routes/likes");
+const comments_1 = require("./routes/comments");
+const users_1 = require("./routes/users");
+const index_1 = require("./auth/index");
+const path = require("path");
 dotenv.config();
 const app = express();
 app.use(cors());
-const port = process.env.PORT || 3000;
+app.use(express.json());
+if (process.env.NODE_ENV === "production") {
+    app.use(express.static(path.join(__dirname, "/../src/build")));
+}
 app.get('/', (req, res) => {
-    res.send(JSON.stringify('Send a request to the backend'));
+    res.sendFile('build/index.html');
 });
-app.get('/all', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const all = yield initDB_1.query('SELECT * FROM IMAGES;');
-    res.send(all.rows);
+app.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("req.body", req.body);
+    const { username, password } = req.body;
+    yield index_1.issueToken(username, password, res);
 }));
-app.get('/id/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const id = req.params.id;
-    const image = yield initDB_1.query(`SELECT * FROM IMAGES WHERE id=${id}`);
-    res.send(image.rows);
-}));
-app.listen(port, () => {
-    initDB_1.setUp();
-    console.log(`App listening at http://localhost:${port}`);
-});
+app.use("/images", images_1.default);
+app.use("/api-docs", docs_1.default);
+app.use("/likes", likes_1.default);
+app.use("/comments", comments_1.default);
+app.use("/users", users_1.default);
+// // Handle 404 errors
+// app.use((req: Request, res: Response) => {
+//     res.status(404).send('Unable to find that page');
+// });
+exports.default = app;
